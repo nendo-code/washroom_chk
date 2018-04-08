@@ -1,0 +1,38 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">        
+        <script src="https://code.jquery.com/jquery-3.1.1.min.js" crossorigin="anonymous"></script>
+        <title>トイレの空きチェック</title>
+        <script type="application/javascript">
+            var current;
+            $(function(){
+                $("#alarm").prop("disabled", true);
+                setInterval(function(){
+                   $.getJSON("/status","",function(data){
+                    current = data;
+                       if(data.lux >= 10){
+                            $("#output").text("トイレに人がいます");
+                            if(data.alarm){
+                                $("#alarm").prop("disabled", true);
+                            }else{
+                                $("#alarm").prop("disabled", false);
+                            }
+                        }else{
+                            $("#output").text("トイレは空いています");
+                            $("#alarm").prop("disabled", true);
+                        }
+                    });
+                },1000);
+            });
+            function sendAlarm(){
+                current.alarm = true;
+                $.post("/status", JSON.stringify(current));
+            }
+        </script>
+    </head>
+    <body>
+        <h1 id="output">空きチェック中</h1>
+        <button id="alarm" onclick="sendAlarm();">ノックする</button>
+    </body>
+</html>
